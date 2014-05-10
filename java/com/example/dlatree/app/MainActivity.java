@@ -22,7 +22,9 @@ public class MainActivity
     private volatile boolean isFinishedNormally = true;
     private static String TAG = "dla_tree";
     private Handler myHandler = null;
+
     private volatile double rm = 1;
+    private volatile int currentDotIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +105,7 @@ public class MainActivity
         bmp.eraseColor(Color.rgb(0, 0, 0));
         iv.invalidate();
         rm = 1;
+        currentDotIndex = 0;
     }
 
     Runnable drawImage = new Runnable() {
@@ -119,7 +122,6 @@ public class MainActivity
                 int xn, yn;
                 int maxIt = 300;
                 int rmax;
-                int currentDotIndex = 0;
                 double a;
 
                 xc = (bmp.getWidth() - 1) / 2;
