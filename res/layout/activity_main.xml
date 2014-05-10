@@ -20,7 +20,7 @@
 
         <Button
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:text="Start"
             android:background="#00FF55"
             android:layout_weight="1"
@@ -32,8 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="#FFEE00"
-            android:text="Stop"
+            android:text="Reset"
             android:onClick="onClick"
-            android:id="@+id/buttonStop" />
+            android:id="@+id/buttonReset" />
     </LinearLayout>
 </LinearLayout>

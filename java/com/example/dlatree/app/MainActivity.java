@@ -10,8 +10,6 @@ import android.view.*;
 import android.view.View;
 import android.widget.*;
 import android.util.Log;
-import java.util.Random;
-
 
 public class MainActivity
     extends ActionBarActivity
@@ -20,35 +18,58 @@ public class MainActivity
     private volatile Bitmap bmp = null;
     private ImageView iv = null;
     private volatile boolean stopFlag = false;
-    private int dots[][];
+    private volatile boolean isRunning = false;
+    private volatile boolean isFinishedNormally = true;
     private static String TAG = "dla_tree";
     private Handler myHandler = null;
+    private volatile double rm = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myHandler = new Handler();
         setContentView(R.layout.activity_main);
         iv = (ImageView) findViewById(R.id.imageView);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.i(TAG, "App started");
     }
+    @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+        Log.i(TAG, "onResume() fired");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();  // Always call the superclass method first
+        Log.i(TAG, "onPause() fired");
+    }
 
     @Override
     public void onClick(View v) {
         Button b = (Button)v;
+        Button bStop = (Button) findViewById(R.id.buttonReset);
+        Button bStart = (Button) findViewById(R.id.buttonStart);
         switch(v.getId()) {
             case R.id.buttonStart:
-                myHandler = new Handler();
-                Thread myThread = new Thread(drawImage);
-                myThread.start();
-                bmp.eraseColor(Color.rgb(0, 0, 0));
-                iv.invalidate();
-                stopFlag = false;
-                b.setEnabled(false);
-                b.setText("Running");
+                if (isRunning) { //pressed on "Pause"
+                    stopFlag = true;
+                    b.setText("Resume");
+                    bStop.setEnabled(true);
+                } else { //pressed on "Start" or "Resume"
+                    if (isFinishedNormally) {
+                        initState();
+                    }
+                    Thread myThread = new Thread(drawImage);
+                    myThread.start();
+                    stopFlag = false;
+                    b.setText("Pause");
+                    bStop.setEnabled(false);
+                }
                 break;
-            case R.id.buttonStop:
-                stopFlag = true;
+            case R.id.buttonReset:
+                bStart.setText("Start");
+                initState();
                 break;
         }
     }
@@ -78,6 +99,12 @@ public class MainActivity
         bmp = Bitmap.createBitmap( iv.getWidth(), iv.getHeight(), Bitmap.Config.ARGB_8888);
     }
 
+    public void initState(){
+        bmp.eraseColor(Color.rgb(0, 0, 0));
+        iv.invalidate();
+        rm = 1;
+    }
+
     Runnable drawImage = new Runnable() {
         byte nx[] = {-1, -1, 0, 1, 1, 1, 0, -1};
         byte ny[] = {0, 1, 1, 1, 0, -1, -1, -1};
@@ -85,6 +112,7 @@ public class MainActivity
         @Override
         public void run() {
             Log.i(TAG, "Thread started");
+            isRunning = true;
             if (bmp != null) {
                 int x, y;
                 int xc, yc;
@@ -93,14 +121,15 @@ public class MainActivity
                 int rmax;
                 int currentDotIndex = 0;
                 double a;
-                double rm = 1;
 
-                bmp.eraseColor(Color.rgb(0, 0, 0));
                 xc = (bmp.getWidth() - 1) / 2;
                 yc = (bmp.getHeight() - 1) / 2;
                 rmax = Math.min(xc, yc) - 1;
-                bmp.setPixel(xc, yc, Color.rgb(255, 255, 255));
-                Log.i(TAG, "Initial pixel at " + xc + "," + yc);
+                if (bmp.getPixel(xc, yc) == Color.rgb(0, 0, 0)) {
+                    bmp.setPixel(xc, yc, Color.rgb(255, 255, 255));
+                    Log.i(TAG, "Initial pixel at " + xc + "," + yc);
+                }
+                isFinishedNormally = false;
                 while (rm < rmax && !stopFlag) {
                     boolean flag = false;
                     a = 3.14159265 * 2 * Math.random();
@@ -146,14 +175,13 @@ public class MainActivity
                         }
                     }//for
                 }//while(r<rmax)
+                isFinishedNormally = !stopFlag;
                 updateScreen();
-                //Canvas c = new Canvas(bmp);
-                //Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                //paint.setColor(Color.rgb(0, 255, 0));
-                //c.drawRect(10, 10, 20, 20, paint);
-                //bmp.setPixel(10, 10, Color.rgb(0, 255, 0));
             }
-            updateButtons();
+            if (isFinishedNormally) {
+                updateButtons();
+            }
+            isRunning = false;
             Log.i(TAG, "Thread finished");
         }
 
@@ -162,7 +190,8 @@ public class MainActivity
                 public void run() {
                     Button bStart = (Button) findViewById(R.id.buttonStart);
                     bStart.setText("Start");
-                    bStart.setEnabled(true);
+                    Button bStop = (Button) findViewById(R.id.buttonReset);
+                    bStop.setEnabled(true);
                 }
             });
         }
@@ -170,10 +199,10 @@ public class MainActivity
         public void updateScreen(){
             myHandler.post(new Runnable() {
                 public void run() {
-                    Log.i(TAG, "runOnUiThread begin");
+                    Log.i(TAG, "updateScreen() begin");
                     iv.setImageBitmap(bmp);
                     iv.invalidate();
-                    Log.i(TAG, "runOnUiThread end");
+                    Log.i(TAG, "updateScreen() end");
                 }
             });
         }
