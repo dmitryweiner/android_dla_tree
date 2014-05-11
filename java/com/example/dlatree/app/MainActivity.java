@@ -6,14 +6,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.graphics.*;
+import android.graphics.drawable.*;
 import android.view.*;
 import android.view.View;
 import android.widget.*;
 import android.util.Log;
 
+
 public class MainActivity
     extends ActionBarActivity
     implements View.OnClickListener {
+
+    static final int STATE_STOP = 0;
+    static final int STATE_PLAY = 1;
+    static final int STATE_PAUSE = 2;
 
     private volatile Bitmap bmp = null;
     private ImageView iv = null;
@@ -25,6 +31,7 @@ public class MainActivity
 
     private volatile double rm = 1;
     private volatile int currentDotIndex = 0;
+    private volatile int currentState = STATE_STOP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,34 +51,54 @@ public class MainActivity
     @Override
     public void onPause() {
         super.onPause();  // Always call the superclass method first
+        stopFlag = true;
         Log.i(TAG, "onPause() fired");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();  // Always call the superclass method first
+        Log.i(TAG, "onStop() fired");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();  // Always call the superclass method first
+        Log.i(TAG, "onStart() fired");
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();  // Always call the superclass method first
+        Log.i(TAG, "onRestart() fired");
     }
 
     @Override
     public void onClick(View v) {
         Button b = (Button)v;
-        Button bStop = (Button) findViewById(R.id.buttonReset);
+        Button bReset = (Button) findViewById(R.id.buttonReset);
         Button bStart = (Button) findViewById(R.id.buttonStart);
         switch(v.getId()) {
             case R.id.buttonStart:
-                if (isRunning) { //pressed on "Pause"
+                if (isRunning) { //pressed "Pause"
                     stopFlag = true;
-                    b.setText("Resume");
-                    bStop.setEnabled(true);
-                } else { //pressed on "Start" or "Resume"
+                    currentState = STATE_PAUSE;
+                    updateButtonsState();
+                } else { //pressed "Start" or "Resume"
                     if (isFinishedNormally) {
                         initState();
                     }
+                    stopFlag = false;
                     Thread myThread = new Thread(drawImage);
                     myThread.start();
-                    stopFlag = false;
-                    b.setText("Pause");
-                    bStop.setEnabled(false);
+                    currentState = STATE_PLAY;
+                    updateButtonsState();
                 }
                 break;
             case R.id.buttonReset:
-                bStart.setText("Start");
                 initState();
+                currentState = STATE_STOP;
+                updateButtonsState();
                 break;
         }
     }
@@ -98,14 +125,49 @@ public class MainActivity
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        bmp = Bitmap.createBitmap( iv.getWidth(), iv.getHeight(), Bitmap.Config.ARGB_8888);
+        if (hasFocus) {
+            BitmapDrawable drawable = (BitmapDrawable) iv.getDrawable();
+            if (drawable != null) {
+                bmp = drawable.getBitmap();
+            } else {
+                bmp = Bitmap.createBitmap(iv.getWidth(), iv.getHeight(), Bitmap.Config.ARGB_8888);
+            }
+            if (currentState == STATE_PLAY) {
+                stopFlag = false;
+                Thread myThread = new Thread(drawImage);
+                myThread.start();
+            }
+        }
+        Log.i(TAG, "onWindowFocusChanged() fired");
     }
 
-    public void initState(){
+    public void initState() {
         bmp.eraseColor(Color.rgb(0, 0, 0));
         iv.invalidate();
         rm = 1;
         currentDotIndex = 0;
+    }
+
+    public void updateButtonsState() {
+        Button bReset = (Button) findViewById(R.id.buttonReset);
+        Button bStart = (Button) findViewById(R.id.buttonStart);
+        switch (currentState) {
+            case STATE_STOP:
+                bStart.setText("Start");
+                bReset.setText("Reset");
+                bReset.setEnabled(true);
+                break;
+            case STATE_PLAY:
+                bStart.setText("Pause");
+                bReset.setText("Reset");
+                bReset.setEnabled(false);
+                break;
+            case STATE_PAUSE:
+                bStart.setText("Resume");
+                bReset.setText("Reset");
+                bReset.setEnabled(true);
+                break;
+        }
     }
 
     Runnable drawImage = new Runnable() {
@@ -120,7 +182,7 @@ public class MainActivity
                 int x, y;
                 int xc, yc;
                 int xn, yn;
-                int maxIt = 300;
+                int maxIt = 400;
                 int rmax;
                 double a;
 
@@ -157,7 +219,7 @@ public class MainActivity
                                     int color = getColorByNumber(currentDotIndex);
                                     bmp.setPixel(x, y, color);
                                     if (currentDotIndex % 50 == 0) {
-                                        Log.i(TAG, "currentDotIndex = " + currentDotIndex);
+                                        //Log.i(TAG, "currentDotIndex = " + currentDotIndex);
                                         updateScreen();
                                     }
                                     currentDotIndex++;
@@ -182,6 +244,7 @@ public class MainActivity
             }
             if (isFinishedNormally) {
                 updateButtons();
+                currentState = STATE_STOP;
             }
             isRunning = false;
             Log.i(TAG, "Thread finished");
@@ -190,10 +253,7 @@ public class MainActivity
         public void updateButtons(){
             myHandler.post(new Runnable() {
                 public void run() {
-                    Button bStart = (Button) findViewById(R.id.buttonStart);
-                    bStart.setText("Start");
-                    Button bStop = (Button) findViewById(R.id.buttonReset);
-                    bStop.setEnabled(true);
+                    updateButtonsState();
                 }
             });
         }
@@ -201,10 +261,10 @@ public class MainActivity
         public void updateScreen(){
             myHandler.post(new Runnable() {
                 public void run() {
-                    Log.i(TAG, "updateScreen() begin");
+                    //Log.i(TAG, "updateScreen() begin");
                     iv.setImageBitmap(bmp);
                     iv.invalidate();
-                    Log.i(TAG, "updateScreen() end");
+                    //Log.i(TAG, "updateScreen() end");
                 }
             });
         }
