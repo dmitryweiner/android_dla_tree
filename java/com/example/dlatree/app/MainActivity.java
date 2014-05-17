@@ -154,16 +154,19 @@ public class MainActivity
         switch (currentState) {
             case STATE_STOP:
                 bStart.setText("Start");
+                bStart.setBackgroundColor(Color.parseColor("#00FF55"));
                 bReset.setText("Reset");
                 bReset.setEnabled(true);
                 break;
             case STATE_PLAY:
                 bStart.setText("Pause");
+                bStart.setBackgroundColor(Color.parseColor("#FF0077"));
                 bReset.setText("Reset");
                 bReset.setEnabled(false);
                 break;
             case STATE_PAUSE:
                 bStart.setText("Resume");
+                bStart.setBackgroundColor(Color.parseColor("#00FFFF"));
                 bReset.setText("Reset");
                 bReset.setEnabled(true);
                 break;
@@ -216,10 +219,7 @@ public class MainActivity
                                     (dots[xn][yn] != 0)) {
 
                                 dots[x][y] = currentDotIndex;
-                                if (currentDotIndex % 50 == 0) {
-                                    //Log.i(TAG, "currentDotIndex = " + currentDotIndex);
-                                    updateScreen();
-                                }
+                                drawDot(x, y, currentDotIndex);
                                 currentDotIndex++;
 
                                 double r;
@@ -238,7 +238,6 @@ public class MainActivity
                 }//for
             }//while(r<rmax)
             isFinishedNormally = !stopFlag;
-            updateScreen();
             if (isFinishedNormally) {
                 updateButtons();
                 currentState = STATE_STOP;
@@ -255,7 +254,7 @@ public class MainActivity
             });
         }
 
-        public void updateScreen(){
+        public void drawDot(final int x, final int y, final int number){
             myHandler.post(new Runnable() {
                 public void run() {
                     //Log.i(TAG, "updateScreen() begin");
@@ -267,26 +266,24 @@ public class MainActivity
                     }
                     Canvas c = new Canvas(bmp);
                     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    for(int i = 0; i < ARRAY_SIZE; i++) {
-                        for(int j = 0; j < ARRAY_SIZE; j++) {
-                            if (dots[i][j] != 0) {
-                                int i_screen = Math.round(iv.getWidth()/2 + (i-ARRAY_SIZE/2) * scale);
-                                int j_screen = Math.round(iv.getHeight()/2 + (j-ARRAY_SIZE/2) * scale);
-                                paint.setColor(getColorByNumber(dots[i][j]));
-                                c.drawCircle(i_screen, j_screen, 0.75f*scale, paint);
-                            }
-                        }
-                    }
+                    int i_screen = Math.round(iv.getWidth()/2 + (x-ARRAY_SIZE/2) * scale);
+                    int j_screen = Math.round(iv.getHeight()/2 + (y-ARRAY_SIZE/2) * scale);
+                    paint.setColor(getColorByNumber(number));
+                    c.drawCircle(i_screen, j_screen, 0.75f*scale, paint);
                     iv.setImageBitmap(bmp);
                     iv.invalidate();
+
+                    TextView tw = (TextView) findViewById(R.id.smallTextView);
+                    tw.setText("Dots: " + number);
                     //Log.i(TAG, "updateScreen() end");
                 }
             });
         }
 
+
         public int getColorByNumber(int number) {
             int red, green, blue;
-            double freq = 3.14159265*2/1400;
+            double freq = 3.14159265*2/3000;
             red   = (int) Math.round(Math.sin(freq*number + 0) * 127 + 128);
             green = (int) Math.round(Math.sin(freq*number + 2) * 127 + 128);
             blue  = (int) Math.round(Math.sin(freq*number + 4) * 127 + 128);
