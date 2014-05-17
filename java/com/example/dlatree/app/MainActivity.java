@@ -20,15 +20,18 @@ public class MainActivity
     static final int STATE_STOP = 0;
     static final int STATE_PLAY = 1;
     static final int STATE_PAUSE = 2;
+    static final int ARRAY_SIZE = 300;
 
     private volatile Bitmap bmp = null;
-    private ImageView iv = null;
     private volatile boolean stopFlag = false;
     private volatile boolean isRunning = false;
     private volatile boolean isFinishedNormally = true;
+    private volatile int[][] dots = new int[ARRAY_SIZE][ARRAY_SIZE];
     private static String TAG = "dla_tree";
     private Handler myHandler = null;
+    private float scale = 0;
 
+    private ImageView iv = null;
     private volatile double rm = 1;
     private volatile int currentDotIndex = 0;
     private volatile int currentState = STATE_STOP;
@@ -75,9 +78,6 @@ public class MainActivity
 
     @Override
     public void onClick(View v) {
-        Button b = (Button)v;
-        Button bReset = (Button) findViewById(R.id.buttonReset);
-        Button bStart = (Button) findViewById(R.id.buttonStart);
         switch(v.getId()) {
             case R.id.buttonStart:
                 if (isRunning) { //pressed "Pause"
@@ -96,8 +96,8 @@ public class MainActivity
                 }
                 break;
             case R.id.buttonReset:
-                initState();
                 currentState = STATE_STOP;
+                initState();
                 updateButtonsState();
                 break;
         }
@@ -126,26 +126,26 @@ public class MainActivity
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            BitmapDrawable drawable = (BitmapDrawable) iv.getDrawable();
-            if (drawable != null) {
-                bmp = drawable.getBitmap();
-            } else {
-                bmp = Bitmap.createBitmap(iv.getWidth(), iv.getHeight(), Bitmap.Config.ARGB_8888);
-            }
             if (currentState == STATE_PLAY) {
                 stopFlag = false;
                 Thread myThread = new Thread(drawImage);
                 myThread.start();
+                Log.i(TAG, "myThread.start();");
             }
+            scale = (float) Math.min(iv.getHeight(), iv.getWidth()) / ARRAY_SIZE;
+            Log.i(TAG, "scale = " + scale);
         }
         Log.i(TAG, "onWindowFocusChanged() fired");
     }
 
     public void initState() {
+        bmp = Bitmap.createBitmap(iv.getWidth(), iv.getHeight(), Bitmap.Config.ARGB_8888);
         bmp.eraseColor(Color.rgb(0, 0, 0));
+        iv.setImageBitmap(bmp);
         iv.invalidate();
         rm = 1;
         currentDotIndex = 0;
+        dots = new int[ARRAY_SIZE][ARRAY_SIZE];
     }
 
     public void updateButtonsState() {
@@ -178,70 +178,67 @@ public class MainActivity
         public void run() {
             Log.i(TAG, "Thread started");
             isRunning = true;
-            if (bmp != null) {
-                int x, y;
-                int xc, yc;
-                int xn, yn;
-                int maxIt = 400;
-                int rmax;
-                double a;
+            int x, y;
+            int xc, yc;
+            int xn, yn;
+            int maxIt = 500;
+            int rmax;
+            double a;
 
-                xc = (bmp.getWidth() - 1) / 2;
-                yc = (bmp.getHeight() - 1) / 2;
-                rmax = Math.min(xc, yc) - 1;
-                if (bmp.getPixel(xc, yc) == Color.rgb(0, 0, 0)) {
-                    bmp.setPixel(xc, yc, Color.rgb(255, 255, 255));
-                    Log.i(TAG, "Initial pixel at " + xc + "," + yc);
-                }
-                isFinishedNormally = false;
-                while (rm < rmax && !stopFlag) {
-                    boolean flag = false;
-                    a = 3.14159265 * 2 * Math.random();
-                    x = (int) (xc + rm * Math.cos(a));
-                    y = (int) (yc + rm * Math.sin(a));
-                    for (int i = 0; i < maxIt; i++){
-                        byte rand = (byte) (Math.random() * 8);
-                        x = x + nx[rand];
-                        y = y + ny[rand];
-                        if (x < 0 || x > (bmp.getWidth() - 1) ||
-                            y < 0 || y > (bmp.getHeight() - 1)) {
-                            break;
-                        }
-                        if (bmp.getPixel(x, y) == Color.rgb(0, 0, 0)) {
-                            //check the neighbors
-                            for (byte k = 0; k < 8; k++){
-                                xn = x + nx[k];
-                                yn = y + ny[k];
-                                if (    xn >= 0 && yn >= 0 &&
-                                        xn < bmp.getWidth() && yn < bmp.getHeight() &&
-                                        (bmp.getPixel(xn, yn) != Color.rgb(0, 0, 0))) {
-
-                                    int color = getColorByNumber(currentDotIndex);
-                                    bmp.setPixel(x, y, color);
-                                    if (currentDotIndex % 50 == 0) {
-                                        //Log.i(TAG, "currentDotIndex = " + currentDotIndex);
-                                        updateScreen();
-                                    }
-                                    currentDotIndex++;
-
-                                    double r;
-                                    r = Math.sqrt((x - xc) * (x - xc) + (y - yc) * (y - yc));
-                                    if (r > rm) {
-                                        rm = r;
-                                    }
-                                    flag = true;
-                                    break;
-                                }
-                            }
-                        }//if not on screen
-                        if (flag) {
-                            break;
-                        }
-                    }//for
-                }//while(r<rmax)
-                isFinishedNormally = !stopFlag;
-                updateScreen();
+            xc = (ARRAY_SIZE - 1) / 2;
+            yc = (ARRAY_SIZE - 1) / 2;
+            rmax = Math.min(xc, yc) - 1;
+            if (dots[xc][yc] == 0) {
+                dots[xc][yc] = 1;
+                Log.i(TAG, "Initial pixel at " + xc + "," + yc);
             }
+            isFinishedNormally = false;
+            while (rm < rmax && !stopFlag) {
+                boolean flag = false;
+                a = 3.14159265 * 2 * Math.random();
+                x = (int) (xc + rm * Math.cos(a));
+                y = (int) (yc + rm * Math.sin(a));
+                for (int i = 0; i < maxIt; i++){
+                    byte rand = (byte) (Math.random() * 8);
+                    x = x + nx[rand];
+                    y = y + ny[rand];
+                    if (x < 0 || x > (ARRAY_SIZE - 1) ||
+                        y < 0 || y > (ARRAY_SIZE - 1)) {
+                        break;
+                    }
+                    if (dots[x][y] == 0) {
+                        //check the neighbors
+                        for (byte k = 0; k < 8; k++){
+                            xn = x + nx[k];
+                            yn = y + ny[k];
+                            if (    xn >= 0 && yn >= 0 &&
+                                    xn < ARRAY_SIZE && yn < ARRAY_SIZE &&
+                                    (dots[xn][yn] != 0)) {
+
+                                dots[x][y] = currentDotIndex;
+                                if (currentDotIndex % 50 == 0) {
+                                    //Log.i(TAG, "currentDotIndex = " + currentDotIndex);
+                                    updateScreen();
+                                }
+                                currentDotIndex++;
+
+                                double r;
+                                r = Math.sqrt((x - xc) * (x - xc) + (y - yc) * (y - yc));
+                                if (r > rm) {
+                                    rm = r;
+                                }
+                                flag = true;
+                                break;
+                            }
+                        }
+                    }//if not on screen
+                    if (flag) {
+                        break;
+                    }
+                }//for
+            }//while(r<rmax)
+            isFinishedNormally = !stopFlag;
+            updateScreen();
             if (isFinishedNormally) {
                 updateButtons();
                 currentState = STATE_STOP;
@@ -262,6 +259,24 @@ public class MainActivity
             myHandler.post(new Runnable() {
                 public void run() {
                     //Log.i(TAG, "updateScreen() begin");
+                    BitmapDrawable drawable = (BitmapDrawable) iv.getDrawable();
+                    if (drawable != null) {
+                        bmp = drawable.getBitmap();
+                    } else {
+                        bmp = Bitmap.createBitmap(iv.getWidth(), iv.getHeight(), Bitmap.Config.ARGB_8888);
+                    }
+                    Canvas c = new Canvas(bmp);
+                    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                    for(int i = 0; i < ARRAY_SIZE; i++) {
+                        for(int j = 0; j < ARRAY_SIZE; j++) {
+                            if (dots[i][j] != 0) {
+                                int i_screen = Math.round(iv.getWidth()/2 + (i-ARRAY_SIZE/2) * scale);
+                                int j_screen = Math.round(iv.getHeight()/2 + (j-ARRAY_SIZE/2) * scale);
+                                paint.setColor(getColorByNumber(dots[i][j]));
+                                c.drawCircle(i_screen, j_screen, 0.75f*scale, paint);
+                            }
+                        }
+                    }
                     iv.setImageBitmap(bmp);
                     iv.invalidate();
                     //Log.i(TAG, "updateScreen() end");
