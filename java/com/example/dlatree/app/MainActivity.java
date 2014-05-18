@@ -42,7 +42,6 @@ public class MainActivity
         myHandler = new Handler();
         setContentView(R.layout.activity_main);
         iv = (ImageView) findViewById(R.id.imageView);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.i(TAG, "App started");
     }
     @Override
@@ -266,8 +265,8 @@ public class MainActivity
                     }
                     Canvas c = new Canvas(bmp);
                     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    int i_screen = Math.round(iv.getWidth()/2 + (x-ARRAY_SIZE/2) * scale);
-                    int j_screen = Math.round(iv.getHeight()/2 + (y-ARRAY_SIZE/2) * scale);
+                    float i_screen = Math.round(iv.getWidth()/2 + (x-ARRAY_SIZE/2) * scale);
+                    float j_screen = Math.round(iv.getHeight()/2 + (y-ARRAY_SIZE/2) * scale);
                     paint.setColor(getColorByNumber(number));
                     c.drawCircle(i_screen, j_screen, 0.75f*scale, paint);
                     iv.setImageBitmap(bmp);
