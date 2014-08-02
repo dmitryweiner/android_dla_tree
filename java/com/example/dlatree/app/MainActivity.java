@@ -11,7 +11,10 @@ import android.view.*;
 import android.view.View;
 import android.widget.*;
 import android.util.Log;
-
+import android.os.Environment;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Random;
 
 public class MainActivity
     extends ActionBarActivity
@@ -115,10 +118,41 @@ public class MainActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id) {
+            case R.id.action_save_image:
+                String root = Environment.getExternalStorageDirectory().toString();
+                File myDir = new File(root + "/dla_tree");//TODO: to settings?
+                myDir.mkdirs();
+                Random generator = new Random();
+                int n = 10000;
+                n = generator.nextInt(n);
+                String fname = "Image-" + n + ".jpg";
+                File file = new File(myDir, fname);
+                Log.i(TAG, "" + file);
+                if (file.exists())
+                    file.delete();//sorry!
+                try {
+                    FileOutputStream out = new FileOutputStream(file);
+                    BitmapDrawable drawable = (BitmapDrawable) iv.getDrawable();
+                    bmp = drawable.getBitmap();
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    out.flush();
+                    out.close();
+                    Toast.makeText(getApplicationContext(), "File is here: " + file,
+                            Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Log.i(TAG, e.toString());
+                    Toast.makeText(getApplicationContext(), "Something went wrong: " + e.toString(),
+                            Toast.LENGTH_LONG).show();
+                }
+                return true;
+            case R.id.action_settings:
+                Toast.makeText(getApplicationContext(), "Not implemented yets",
+                        Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return true;
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -183,7 +217,7 @@ public class MainActivity
             int x, y;
             int xc, yc;
             int xn, yn;
-            int maxIt = 500;
+            int maxIt = 500;//TODO:  make it mutable
             int rmax;
             double a;
 
@@ -282,7 +316,7 @@ public class MainActivity
 
         public int getColorByNumber(int number) {
             int red, green, blue;
-            double freq = 3.14159265*2/3000;
+            double freq = 3.14159265*2/3000;//TODO:  make it mutable
             red   = (int) Math.round(Math.sin(freq*number + 0) * 127 + 128);
             green = (int) Math.round(Math.sin(freq*number + 2) * 127 + 128);
             blue  = (int) Math.round(Math.sin(freq*number + 4) * 127 + 128);
