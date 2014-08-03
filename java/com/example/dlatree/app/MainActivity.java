@@ -9,12 +9,14 @@ import android.graphics.*;
 import android.graphics.drawable.*;
 import android.view.*;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.*;
 import android.util.Log;
 import android.os.Environment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Random;
+import android.app.Dialog;
 
 public class MainActivity
     extends ActionBarActivity
@@ -147,8 +149,22 @@ public class MainActivity
                 }
                 return true;
             case R.id.action_settings:
-                Toast.makeText(getApplicationContext(), "Not implemented yets",
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), "Not implemented yet",
+//                        Toast.LENGTH_LONG).show();
+                final Dialog dialog = new Dialog(this);
+                dialog.setContentView(R.layout.settings_dialog);
+                dialog.setTitle(R.string.action_settings);
+
+                Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+                // if button is clicked, close the custom dialog
+                dialogButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
                 return true;
             default:
                 return true;
@@ -186,21 +202,21 @@ public class MainActivity
         Button bStart = (Button) findViewById(R.id.buttonStart);
         switch (currentState) {
             case STATE_STOP:
-                bStart.setText("Start");
+                bStart.setText(R.string.start);
                 bStart.setBackgroundColor(Color.parseColor("#00FF55"));
-                bReset.setText("Reset");
+                bReset.setText(R.string.reset);
                 bReset.setEnabled(true);
                 break;
             case STATE_PLAY:
-                bStart.setText("Pause");
+                bStart.setText(R.string.pause);
                 bStart.setBackgroundColor(Color.parseColor("#FF0077"));
-                bReset.setText("Reset");
+                bReset.setText(R.string.reset);
                 bReset.setEnabled(false);
                 break;
             case STATE_PAUSE:
-                bStart.setText("Resume");
+                bStart.setText(R.string.resume);
                 bStart.setBackgroundColor(Color.parseColor("#00FFFF"));
-                bReset.setText("Reset");
+                bReset.setText(R.string.reset);
                 bReset.setEnabled(true);
                 break;
         }

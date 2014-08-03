@@ -35,7 +35,7 @@
         <Button
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Start"
+            android:text="@string/start"
             android:background="#00FF55"
             android:layout_weight="1"
             android:onClick="onClick"
@@ -46,7 +46,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:background="#FFEE00"
-            android:text="Reset"
+            android:text="@string/reset"
             android:onClick="onClick"
             android:id="@+id/buttonReset" />
     </LinearLayout>

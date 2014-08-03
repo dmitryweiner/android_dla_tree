@@ -4,5 +4,14 @@
     <string name="app_name">DLA tree</string>
     <string name="action_settings">Settings</string>
     <string name="action_save_image">Save image</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="reset">Reset</string>
+    <string name="palette_shift">Palette shift</string>
+    <string name="palette_coeff">Palette coefficient</string>
+    <string name="iterations_number">Iterations number</string>
+    <string name="ok">OK</string>
 
 </resources>
