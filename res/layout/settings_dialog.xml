@@ -16,10 +16,31 @@
         android:text = "@string/palette_shift"
         />
 
-    <SeekBar
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/paletteShiftValue" />
+        android:background="#000"
+        android:gravity="center_horizontal"
+        >
+
+        <SeekBar
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:progress="@string/default_palette_shift"
+            android:id="@+id/paletteShiftValue" />
+
+        <TextView
+            android:id="@+id/textPaletteShift"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="#FFF"
+            android:text = "@string/default_palette_shift"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/text2"
@@ -29,10 +50,31 @@
         android:text = "@string/palette_coeff"
         />
 
-    <SeekBar
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/paletteCoeffValue" />
+        android:background="#000"
+        android:gravity="center_horizontal"
+        >
+
+        <SeekBar
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:progress="@string/default_palette_coeff"
+            android:id="@+id/paletteCoeffValue" />
+
+        <TextView
+            android:id="@+id/textPaletteCoeff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="#FFF"
+            android:text = "@string/default_palette_coeff"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/text3"
@@ -42,14 +84,35 @@
         android:text = "@string/iterations_number"
         />
 
-    <SeekBar
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/iterationsNumberValue" />
+        android:background="#000"
+        android:gravity="center_horizontal"
+        >
+
+        <SeekBar
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:progress="@string/default_iterations"
+            android:id="@+id/iterationsNumberValue" />
+
+        <TextView
+            android:id="@+id/textIterations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="#FFF"
+            android:text = "@string/default_palette_coeff"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/dialogButtonOK"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/ok"
         />

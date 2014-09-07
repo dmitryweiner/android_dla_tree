@@ -140,26 +140,84 @@ public class MainActivity
                     bmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
                     out.flush();
                     out.close();
-                    Toast.makeText(getApplicationContext(), "File is here: " + file,
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.file_is_here) + ": " + file,
                             Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Log.i(TAG, e.toString());
-                    Toast.makeText(getApplicationContext(), "Something went wrong: " + e.toString(),
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.something_went_wrong) + ": " + e.toString(),
                             Toast.LENGTH_LONG).show();
                 }
                 return true;
             case R.id.action_settings:
 //                Toast.makeText(getApplicationContext(), "Not implemented yet",
 //                        Toast.LENGTH_LONG).show();
-                final Dialog dialog = new Dialog(this);
+                final Dialog dialog = new Dialog(this, R.style.DialogTheme);
                 dialog.setContentView(R.layout.settings_dialog);
                 dialog.setTitle(R.string.action_settings);
+
+                SeekBar sbPaletteShift = (SeekBar) dialog.findViewById(R.id.paletteShiftValue);
+                sbPaletteShift.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        TextView tvPaletteShift = (TextView) dialog.findViewById(R.id.textPaletteShift);
+                        tvPaletteShift.setText(String.valueOf(seekBar.getProgress()));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+
+                SeekBar sbPaletteCoeff = (SeekBar) dialog.findViewById(R.id.paletteCoeffValue);
+                sbPaletteCoeff.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        TextView tvPaletteCoeff = (TextView) dialog.findViewById(R.id.textPaletteCoeff);
+                        tvPaletteCoeff.setText(String.valueOf(seekBar.getProgress()));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+
+                SeekBar sbIterations = (SeekBar) dialog.findViewById(R.id.iterationsNumberValue);
+                sbIterations.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        TextView tvIterations = (TextView) dialog.findViewById(R.id.textIterations);
+                        tvIterations.setText(String.valueOf(seekBar.getProgress()));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
 
                 Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
                 // if button is clicked, close the custom dialog
                 dialogButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //here we are applying settings
                         dialog.dismiss();
                     }
                 });
@@ -323,7 +381,7 @@ public class MainActivity
                     iv.invalidate();
 
                     TextView tw = (TextView) findViewById(R.id.smallTextView);
-                    tw.setText("Dots: " + number);
+                    tw.setText(getResources().getString(R.string.dots) + ": " + number);
                     //Log.i(TAG, "updateScreen() end");
                 }
             });
@@ -332,7 +390,7 @@ public class MainActivity
 
         public int getColorByNumber(int number) {
             int red, green, blue;
-            double freq = 3.14159265*2/3000;//TODO:  make it mutable
+            double freq = 3.14159265*2/3000;//TODO:  make it changable from settings
             red   = (int) Math.round(Math.sin(freq*number + 0) * 127 + 128);
             green = (int) Math.round(Math.sin(freq*number + 2) * 127 + 128);
             blue  = (int) Math.round(Math.sin(freq*number + 4) * 127 + 128);

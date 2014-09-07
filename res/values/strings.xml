@@ -13,5 +13,12 @@
     <string name="palette_coeff">Palette coefficient</string>
     <string name="iterations_number">Iterations number</string>
     <string name="ok">OK</string>
+    <string name="file_is_here">File is here</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="dots">Dots</string>
+    <string name="default_palette_shift">20</string>
+    <string name="default_palette_coeff">20</string>
+    <string name="default_iterations">20</string>
+
 
 </resources>

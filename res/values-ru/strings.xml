@@ -13,5 +13,8 @@
     <string name="palette_coeff">Коэффициент палитры</string>
     <string name="iterations_number">Число итераций</string>
     <string name="ok">ОК</string>
+    <string name="file_is_here">Файл здесь</string>
+    <string name="something_went_wrong">Что-то пошло не так</string>
+    <string name="dots">Число точек</string>
 
 </resources>
